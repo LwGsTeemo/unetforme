@@ -20,15 +20,15 @@ from utils.eval import eval_net
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-# unet3+
-# dir_img = '/home/UNet3plus_pth/data/train/imgs/'
-# dir_mask = '/home/UNet3plus_pth/data/train/masks/'
-# dir_checkpoint = '/home/UNet3plus_pth/ckpts/'
+# unet3+ 369x369
+dir_img = '/home/UNet3plus_pth/data/train/imgs/'
+dir_mask = '/home/UNet3plus_pth/data/train/masks/'
+dir_checkpoint = '/home/UNet3plus_pth/ckpts/'
 
-# unet2+
-dir_img = '/home/UNet3plus_pth/data600x800/train/imgs/'
-dir_mask = '/home/UNet3plus_pth/data600x800/train/masks/'
-dir_checkpoint = '/home/UNet3plus_pth/ckpts600x800/'
+# unet2+ 600x800
+# dir_img = '/home/UNet3plus_pth/data600x800/train/imgs/'
+# dir_mask = '/home/UNet3plus_pth/data600x800/train/masks/'
+# dir_checkpoint = '/home/UNet3plus_pth/ckpts600x800/'
 
 def train_net(unet_type, net, device, epochs=5, batch_size=1, lr=0.1, val_percent=0.1, save_cp=True, img_scale=0.5):
     dataset = BasicDataset(unet_type, dir_img, dir_mask, img_scale)
