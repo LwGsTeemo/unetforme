@@ -13,3 +13,5 @@ mask/
 masksRawData/
 testAnswer/
 *.pth
+*jpg
+*png
