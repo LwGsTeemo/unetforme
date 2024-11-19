@@ -1,29 +1,72 @@
 image_folder = '/home/UNet3plus_pth/data/train/imgs/'
 output_folder = '/home/UNet3plus_pth/data/train/imgs2/'
 
-def rotatePicture(image_folder,output_folder):
-    import cv2
+def rotate_images_in_folder(folder_path):
     import os
+    import cv2
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith(".jpg"):
+                file_path = os.path.join(root, file)
+                
+                # 讀取圖片
+                img = cv2.imread(file_path)
+                
+                # 逆時針旋轉 90 度
+                rotated_img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                
+                # 儲存旋轉後的圖片，覆蓋原檔案
+                cv2.imwrite(file_path, rotated_img)
+                print(f"Rotated and saved: {file_path}")
 
-    # 確保輸出資料夾存在
-    os.makedirs(output_folder, exist_ok=True)
+def clahe_images(folder_path):
+    import os
+    import cv2
+    import numpy as np
+    import mclahe as mc
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith(".jpg"):
+                file_path = os.path.join(root, file)
+                
+                # 讀取圖片
+                img_data = cv2.imread(file_path)
+                # img_data = np.clip(img_data, -300,500)
+                img_data = img_data.astype(np.uint8)
+                img_data = mc.mclahe(img_data, kernel_size=(8, 8, 8),
+                            n_bins=128,
+                            clip_limit=0.0,
+                            adaptive_hist_range=False,)
+                img_data = 255-((img_data*255.).astype(np.uint8).clip(0, 255))
+                mi, ma = np.min(img_data), np.max(img_data)
+                img_data = (img_data - mi) / (ma - mi)
+                img_data = img_data.astype("float32")
 
-    # 讀取資料夾中的所有圖片檔案
-    image_files = [f for f in os.listdir(image_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
-
-    for image_file in image_files:
-        image_path = os.path.join(image_folder, image_file)
-        output_path = os.path.join(output_folder, image_file)
-
-        # 讀取圖片
-        image = cv2.imread(image_path)
-
-        # 旋轉圖片90度 (順時針)
-        rotated_image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
-        # 儲存旋轉後的圖片
-        cv2.imwrite(output_path, rotated_image)
-        print(f"已旋轉並儲存圖片: {output_path}")
+                # # 逆時針旋轉 90 度
+                # rotated_img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                
+                # 儲存旋轉後的圖片，覆蓋原檔案
+                cv2.imwrite(file_path, img_data)
+                print(f"Rotated and saved: {file_path}")
+        
+def resize_npy_images(folder_path, target_size=(369, 369)):
+    import numpy as np
+    import os
+    from skimage.transform import resize
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith(".npy"):
+                file_path = os.path.join(root, file)
+                
+                # 讀取 .npy 檔案
+                img_array = np.load(file_path)
+                
+                # Resize 圖片到指定大小
+                resized_img = resize(img_array, target_size, anti_aliasing=True)
+                
+                # 儲存重新調整大小的圖片，覆蓋原檔案
+                np.save(file_path, resized_img)
+                print(f"Resized and saved: {file_path}")
 
 def prepareCropPic():
     import os
@@ -189,7 +232,9 @@ def calIOU():
 
 
 if __name__ == '__main__':
-    # rotatePicture(image_folder,output_folder)
+    # rotate_images_in_folder('/home/Medical-SAM2/data/btcv_final')
+    resize_npy_images('./data/btcv_rawData')
+    # clahe_images('./data/btcv_rawData')
     # prepareCropPic()
     # resizeLabelSize()
-    calIOU()
+    # calIOU()
